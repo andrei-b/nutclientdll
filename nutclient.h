@@ -34,9 +34,6 @@
 #define NUT_UNUSED_VARIABLE(x) (void)(x)
 #endif
 
-namespace nut
-{
-
 namespace internal
 {
 class Socket;
@@ -66,6 +63,14 @@ __declspec(dllexport) void __cdecl freeWinsock();
     __declspec(dllimport) void __cdecl freeWinsock();
 #endif
 #endif
+
+namespace nut
+{
+
+    /*
+     * Abstract socket interface which you can use to provide your own socket implementation instead of the default one.
+     */
+
 
 /**
  * Basic nut exception.
@@ -145,6 +150,83 @@ public:
     TimeoutException& operator=(TimeoutException& rhs) = default;
 	virtual ~TimeoutException();
 };
+
+    class AbstractSocket
+    {
+    public:
+        /*
+         * Creates the connection.
+         *     host - remote hostname
+         *     port - remote port
+         *     If the host is not found throws UnknownHostException
+         *     if the socket cannot be opened for any other reason, throws IOException("Cannot connect to host")
+         */
+        virtual void connect(const std::string& host, int port) = 0;
+        /*
+         * Closes the connection, never reports an error.
+         */
+        virtual void disconnect() = 0;
+        /*
+         * Returns true if the socket is connected, and false otherwise.
+         */
+        bool isConnected()const;
+        /*
+         * Don't touch this.
+         */
+        void setTimeout(long timeout) {};
+        /*
+         * Don't touch this.
+         */
+        bool hasTimeout()const{return false;}
+        /*
+         * Reads data from a socket in the blocking mode.
+         *     buf - buffer
+         *     sz - buffer length
+         *     Returns the number of bytes actually read. Returning 0 means the remote connection is closed.
+         *  Throws NotConnectedException if called on a not connected socket.
+         *  Throws IOException at any other error.
+         */
+        virtual size_t read(void* buf, size_t sz) = 0;
+        /*
+         * Writes data to a socket in the blocking mode.
+         *     buf - buffer
+         *     sz - buffer data length
+         *     Returns the number of bytes actually written. Returning 0 means the remote connection is closed.
+         *  Throws NotConnectedException if called on a not connected socket.
+         *  Throws IOException at any other error.
+         */
+        virtual size_t write(const void* buf, size_t sz) = 0;
+        /*
+         * Don't touch this.
+         */
+        std::string read() {
+            std::string result;
+            char buff[256];
+            size_t br = read(buff, 255);
+            while (br != 0) {
+                buff[br] = '\0';
+                result.append(buff);
+                if (result.find('\n') != std::string::npos)
+                    return result;
+                br = read(buff, 255);
+            }
+            throw IOException("Reading string failed.");
+        }
+        /*
+         * Don't touch this.
+         */
+        void write(const std::string& str) {
+            auto data = str.data();
+            size_t nextPos = 0;
+            while (nextPos < str.size()) {
+                size_t bw = write(reinterpret_cast<const void *>(data[nextPos]), str.size() - nextPos);
+                if (bw == 0)
+                    throw IOException("Writing string failed");
+                nextPos += bw;
+            }
+        }
+        virtual ~AbstractSocket() = default;
+    };
 
 /**
  * Cookie given when performing async action, used to redeem result at a later date.
