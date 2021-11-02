@@ -3,7 +3,7 @@ project(nutclient)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(nutclient SHARED nutclient.cpp)
+add_library(nutclient SHARED nutclient.cpp simplesocket.h)
 
 if (WIN32)
     add_compile_definitions(WIN32_EXPORT)

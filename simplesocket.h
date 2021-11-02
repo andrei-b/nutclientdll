@@ -1,0 +1,8 @@
+//
+// Created by andre on 02/11/2021.
+//
+
+#ifndef NUTCLIENT_SIMPLESOCKET_H
+#define NUTCLIENT_SIMPLESOCKET_H
+
+#endif //NUTCLIENT_SIMPLESOCKET_H

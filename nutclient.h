@@ -28,6 +28,8 @@
 #include <map>
 #include <set>
 #include <exception>
+#include <functional>
+#include <memory>
 
 /* See include/common.h for details behind this */
 #ifndef NUT_UNUSED_VARIABLE
@@ -169,7 +171,7 @@ public:
         /*
          * Returns true if the socket is connected, and false otherwise.
          */
-        bool isConnected()const;
+        virtual bool isConnected()const = 0;
         /*
          * Don't touch this.
          */
