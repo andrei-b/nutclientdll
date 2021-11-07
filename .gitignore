@@ -32,3 +32,5 @@
 *.app
 example/.idea/
 example/cmake-build-debug/
+.idea/
+cmake-build-debug/
