@@ -41,6 +41,8 @@ namespace internal
 class Socket;
 } /* namespace internal */
 
+class AbstractSocket;
+
 #ifdef WIN32_EXPORT
 class __declspec(dllexport) Client;
 class __declspec(dllexport) TcpClient;
@@ -53,7 +55,7 @@ class __declspec(dllexport) IOException;
 class __declspec(dllexport) UnknownHostException;
 class __declspec(dllexport) NotConnectedException;
 __declspec(dllexport) void __cdecl freeWinsock();
-
+__declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 #ifndef WIN32_EXPORT
     class Client;
@@ -64,6 +66,7 @@ __declspec(dllexport) void __cdecl freeWinsock();
 #ifdef WIN32
     __declspec(dllimport) void __cdecl freeWinsock();
 #endif
+    void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 
 namespace nut
@@ -570,7 +573,7 @@ private:
 	std::string _host;
 	int _port;
 	long _timeout;
-	internal::Socket* _socket;
+	std::shared_ptr<AbstractSocket> _socket;
 };
 
 /**

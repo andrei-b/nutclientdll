@@ -97,20 +97,32 @@ namespace internal
  */
 
 
+std::shared_ptr<AbstractSocket> defaultFactory(){
+    return std::shared_ptr<AbstractSocket>(new intertnal::SimpleSocket());
+};
 
-static std::function<std::shared_ptr<AbstractSocket>()> socketFactory;
+static std::function<std::shared_ptr<AbstractSocket>()> socketFactory =defaultFactory;
 
 
 
 }/* namespace internal */
 
+#ifdef WIN32_EXPORT
+    __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory)
+#endif
+#ifndef WIN32_EXPORT
+    void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory)
+#endif
+    {
+        nut::internal::socketFactory = factory;
+    }
 
 #ifdef WIN32_EXPORT
 __declspec(dllexport) void __cdecl freeWinsock()
 {
-        if (internal::WSAInitialised) {
+        if (intertnal::WSAInitialised) {
             WSACleanup();
-            internal::WSAInitialised = false;
+            intertnal::WSAInitialised = false;
         }
 }
 #endif
@@ -236,7 +248,7 @@ Client(),
 _host("localhost"),
 _port(3493),
 _timeout(0),
-_socket(new internal::Socket)
+_socket(internal::socketFactory())
 {
 	// Do not connect now
 }
@@ -244,14 +256,13 @@ _socket(new internal::Socket)
 TcpClient::TcpClient(const std::string& host, int port):
 Client(),
 _timeout(0),
-_socket(new internal::Socket)
+_socket(internal::socketFactory())
 {
 	connect(host, port);
 }
 
 TcpClient::~TcpClient()
 {
-	delete _socket;
 }
 
 void TcpClient::connect(const std::string& host, int port)
