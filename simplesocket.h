@@ -92,18 +92,18 @@ namespace nut {
             std::string _buffer; /* Received buffer, string because data should be text only. */
         };
 
-        Socket::Socket() :
+        SimpleSocket::SimpleSocket() :
                 _sock(INVALID_SOCKET),
                 _tv() {
             _tv.tv_sec = -1;
             _tv.tv_usec = 0;
         }
 
-        Socket::~Socket() {
+        SimpleSocket::~SimpleSocket() {
             disconnect();
         }
 
-        void Socket::connect(const std::string &host, int port) {
+        void SimpleSocket::connect(const std::string &host, int port) {
             FD_TYPE sock_fd;
             struct addrinfo hints, *res, *ai;
             char sport[NI_MAXSERV];
@@ -274,7 +274,7 @@ namespace nut {
 #endif // OLD
         }
 
-        void Socket::disconnect() {
+        void SimpleSocket::disconnect() {
             if (_sock != INVALID_SOCKET) {
                 ::closesocket(_sock);
                 _sock = INVALID_SOCKET;
@@ -282,11 +282,11 @@ namespace nut {
             _buffer.clear();
         }
 
-        bool Socket::isConnected() const {
+        bool SimpleSocket::isConnected() const {
             return _sock != INVALID_SOCKET;
         }
 
-        size_t Socket::read(void *buf, size_t sz) {
+        size_t SimpleSocket::read(void *buf, size_t sz) {
             if (!isConnected()) {
                 throw nut::NotConnectedException();
             }
@@ -309,7 +309,7 @@ namespace nut {
             return static_cast<size_t>(res);
         }
 
-        size_t Socket::write(const void *buf, size_t sz) {
+        size_t SimpleSocket::write(const void *buf, size_t sz) {
             if (!isConnected()) {
                 throw nut::NotConnectedException();
             }

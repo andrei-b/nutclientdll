@@ -36,28 +36,26 @@
 #define NUT_UNUSED_VARIABLE(x) (void)(x)
 #endif
 
-namespace internal
+namespace nut
 {
-class Socket;
-} /* namespace internal */
-
-class AbstractSocket;
 
 #ifdef WIN32_EXPORT
-class __declspec(dllexport) Client;
-class __declspec(dllexport) TcpClient;
-class __declspec(dllexport) Device;
-class __declspec(dllexport) Variable;
-class __declspec(dllexport) Command;
-class __declspec(dllexport) NutException;
-class __declspec(dllexport) SystemException;
-class __declspec(dllexport) IOException;
-class __declspec(dllexport) UnknownHostException;
-class __declspec(dllexport) NotConnectedException;
-__declspec(dllexport) void __cdecl freeWinsock();
-__declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
+    class __declspec(dllexport) AbstractSocket;
+    class __declspec(dllexport) Client;
+    class __declspec(dllexport) TcpClient;
+    class __declspec(dllexport) Device;
+    class __declspec(dllexport) Variable;
+    class __declspec(dllexport) Command;
+    class __declspec(dllexport) NutException;
+    class __declspec(dllexport) SystemException;
+    class __declspec(dllexport) IOException;
+    class __declspec(dllexport) UnknownHostException;
+    class __declspec(dllexport) NotConnectedException;
+    __declspec(dllexport) void __cdecl freeWinsock();
+    __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 #ifndef WIN32_EXPORT
+    class AbstractSocket;
     class Client;
     class TcpClient;
     class Device;
@@ -68,9 +66,6 @@ __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std
 #endif
     void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
-
-namespace nut
-{
 
     /*
      * Abstract socket interface which you can use to provide your own socket implementation instead of the default one.
