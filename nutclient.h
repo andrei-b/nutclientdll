@@ -153,6 +153,8 @@ public:
 
     class AbstractSocket
     {
+    private:
+        std::string _buffer;
     public:
         /*
          * Creates the connection.
@@ -200,26 +202,43 @@ public:
          * Don't touch this.
          */
         std::string read() {
-            std::string result;
+            std::string res;
             char buff[256];
-            size_t br = read(buff, 255);
-            while (br != 0) {
-                buff[br] = '\0';
-                result.append(buff);
-                if (result.find('\n') != std::string::npos)
-                    return result;
-                br = read(buff, 255);
+
+            while(true)
+            {
+                // Look at already read data in _buffer
+                if(!_buffer.empty())
+                {
+                    size_t idx = _buffer.find('\n');
+                    if(idx!=std::string::npos)
+                    {
+                        res += _buffer.substr(0, idx);
+                        _buffer.erase(0, idx+1);
+                        return res;
+                    }
+                    res += _buffer;
+                }
+
+                // Read new buffer
+                size_t sz = read(&buff, 256);
+                if(sz==0)
+                {
+                    disconnect();
+                    throw nut::IOException("Server closed connection unexpectedly");
+                }
+                _buffer.assign(buff, sz);
             }
-            throw IOException("Reading string failed.");
         }
         /*
          * Don't touch this.
          */
         void write(const std::string& str) {
-            auto data = str.data();
+            auto vs = str + '\n';
+            auto data = vs.data();
             size_t nextPos = 0;
-            while (nextPos < str.size()) {
-                size_t bw = write(reinterpret_cast<const void *>(&data[nextPos]), str.size() - nextPos);
+            while (nextPos < vs.size()) {
+                size_t bw = write(reinterpret_cast<const void *>(&data[nextPos]), vs.size() - nextPos);
                 if (bw == 0)
                     throw IOException("Writing string failed");
                 nextPos += bw;
