@@ -304,7 +304,7 @@ namespace nut {
             ssize_t res = xread(_sock, static_cast<char *>(buf), sz);
             if (res == -1) {
                 disconnect();
-                throw nut::IOException("Error while reading on socket");
+                throw nut::IOException("Error while reading from socket");
             }
             return static_cast<size_t>(res);
         }

@@ -97,7 +97,7 @@ namespace internal
  */
 
 
-std::shared_ptr<AbstractSocket> defaultFactory(){
+static std::shared_ptr<AbstractSocket> defaultFactory(){
     return std::shared_ptr<AbstractSocket>(new intertnal::SimpleSocket());
 };
 

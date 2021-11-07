@@ -219,7 +219,7 @@ public:
             auto data = str.data();
             size_t nextPos = 0;
             while (nextPos < str.size()) {
-                size_t bw = write(reinterpret_cast<const void *>(data[nextPos]), str.size() - nextPos);
+                size_t bw = write(reinterpret_cast<const void *>(&data[nextPos]), str.size() - nextPos);
                 if (bw == 0)
                     throw IOException("Writing string failed");
                 nextPos += bw;
