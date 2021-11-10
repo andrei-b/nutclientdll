@@ -151,10 +151,18 @@ public:
 	virtual ~TimeoutException();
 };
 
+    /*
+     * AbstractSocket is the interface for TCP socket classes used by other classes in this library.
+     * By default, the DefaultSocket internal implementation is used. You may want to replace the default
+     * implementation with your own if, for example, you are using some framework that has its own socket classes,
+     * like QTcpSocket in Qt or ip::tcp::socket in Boost, and you want the nut client code to rely on those classes
+     * for the network I/O. In this case you should create your own wrapper class descending from AbstractSocket,
+     * and register a factory for it by calling the registerSocketFactory(...).
+     */
+
     class AbstractSocket
     {
-    private:
-        std::string _buffer;
+
     public:
         /*
          * Creates the connection.
@@ -199,51 +207,15 @@ public:
          */
         virtual size_t write(const void* buf, size_t sz) = 0;
         /*
-         * Don't touch this.
+         * Reads a string from the socket. The NUT protocol separates the strings with \n symbol,
+         * but the string returned should not contain it.
          */
-        std::string read() {
-            std::string res;
-            char buff[256];
-
-            while(true)
-            {
-                // Look at already read data in _buffer
-                if(!_buffer.empty())
-                {
-                    size_t idx = _buffer.find('\n');
-                    if(idx!=std::string::npos)
-                    {
-                        res += _buffer.substr(0, idx);
-                        _buffer.erase(0, idx+1);
-                        return res;
-                    }
-                    res += _buffer;
-                }
-
-                // Read new buffer
-                size_t sz = read(&buff, 256);
-                if(sz==0)
-                {
-                    disconnect();
-                    throw nut::IOException("Server closed connection unexpectedly");
-                }
-                _buffer.assign(buff, sz);
-            }
-        }
+        virtual std::string read() = 0;
         /*
-         * Don't touch this.
+         * Writes a string to the socket. The NUT protocol separates the strings with \n symbol,
+         * but the string s should not contain it.
          */
-        void write(const std::string& str) {
-            auto vs = str + '\n';
-            auto data = vs.data();
-            size_t nextPos = 0;
-            while (nextPos < vs.size()) {
-                size_t bw = write(reinterpret_cast<const void *>(&data[nextPos]), vs.size() - nextPos);
-                if (bw == 0)
-                    throw IOException("Writing string failed");
-                nextPos += bw;
-            }
-        }
+        virtual void write(const std::string & s) = 0;
         virtual ~AbstractSocket() = default;
     };
 

@@ -17,7 +17,7 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-#include "simplesocket.h"
+#include "defaultsocket.h"
 
 #ifdef HAVE_NUTCOMMON
 #include "common.h"
@@ -98,7 +98,7 @@ namespace internal
 
 
 static std::shared_ptr<AbstractSocket> defaultFactory(){
-    return std::shared_ptr<AbstractSocket>(new intertnal::SimpleSocket());
+    return std::shared_ptr<AbstractSocket>(new intertnal::DefaultSocket());
 };
 
 static std::function<std::shared_ptr<AbstractSocket>()> socketFactory =defaultFactory;
