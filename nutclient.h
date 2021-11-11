@@ -51,7 +51,6 @@ namespace nut
     class __declspec(dllexport) IOException;
     class __declspec(dllexport) UnknownHostException;
     class __declspec(dllexport) NotConnectedException;
-    __declspec(dllexport) void __cdecl freeWinsock();
     __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 #ifndef WIN32_EXPORT
@@ -61,9 +60,6 @@ namespace nut
     class Device;
     class Variable;
     class Command;
-#ifdef WIN32
-    __declspec(dllimport) void __cdecl freeWinsock();
-#endif
     void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 

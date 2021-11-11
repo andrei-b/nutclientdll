@@ -40,7 +40,6 @@ namespace nut {
     namespace intertnal {
 
 #ifdef WIN32
-        static bool WSAInitialised = false;
 #define ssize_t long
 #define FD_TYPE SOCKET
 

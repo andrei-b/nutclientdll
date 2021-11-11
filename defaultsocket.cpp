@@ -6,6 +6,11 @@
 
 namespace nut {
     namespace intertnal {
+
+#ifdef WIN32
+        static bool WSAInitialised = false;
+#endif
+
         DefaultSocket::DefaultSocket() :
                 _sock(INVALID_SOCKET),
                 _tv() {
@@ -15,6 +20,10 @@ namespace nut {
 
         DefaultSocket::~DefaultSocket() {
             disconnect();
+            if (WSAInitialised) {
+                WSACleanup();
+                WSAInitialised = false;
+            }
         }
 
         void DefaultSocket::connect(const std::string &host, int port) {

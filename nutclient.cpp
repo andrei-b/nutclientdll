@@ -117,15 +117,6 @@ static std::function<std::shared_ptr<AbstractSocket>()> socketFactory =defaultFa
         nut::internal::socketFactory = factory;
     }
 
-#ifdef WIN32_EXPORT
-__declspec(dllexport) void __cdecl freeWinsock()
-{
-        if (intertnal::WSAInitialised) {
-            WSACleanup();
-            intertnal::WSAInitialised = false;
-        }
-}
-#endif
 /*
  *
  * Client implementation
