@@ -60,6 +60,9 @@ namespace nut
     class Device;
     class Variable;
     class Command;
+    /* If you are going to use your own AbstractSocket implementation, you should register a factory for it.
+     * The factory returns a shared pointer to the newly created AbstracSocket descendant object.
+     * /
     void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 #endif
 

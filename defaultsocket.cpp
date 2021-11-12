@@ -5,7 +5,63 @@
 #include "defaultsocket.h"
 
 namespace nut {
-    namespace intertnal {
+    namespace internal {
+
+#ifdef WIN32
+#define ssize_t long
+#define FD_TYPE SOCKET
+
+        inline int xread(FD_TYPE socket, char *buf, int size) {
+            return recv(socket, buf, size, 0);
+        }
+
+        inline int xwrite(FD_TYPE socket, const char *buf, int size) {
+            return send(socket, buf, size, 0);
+        }
+
+        inline int xclose(FD_TYPE socket) {
+            return ::closesocket(socket);
+        }
+
+#endif
+#ifndef WIN32
+        #define FD_TYPE int
+        inline int xread(FD_TYPE socket, char * buf, int size) {
+            return ::read(socket, buf, size);
+        }
+        inline int xwrite(FD_TYPE socket, const char * buf, int size) {
+            return ::write(socket, buf, size);
+        }
+        inline int xclose(FD_TYPE socket) {
+            return ::close(socket);
+        }
+#endif
+
+        class DefaultSocket : public AbstractSocket {
+        public:
+            DefaultSocket();
+
+            ~DefaultSocket();
+
+            void connect(const std::string &host, int port) override;
+
+            void disconnect() override;
+
+            bool isConnected() const override;
+
+            size_t read(void *buf, size_t sz) override;
+
+            size_t write(const void *buf, size_t sz) override;
+
+            std::string  read() override;
+
+            void write(const std::string & s) override;
+
+        private:
+            SOCKET _sock;
+            struct timeval _tv;
+            std::string _buffer; /* Received buffer, string because data should be text only. */
+        };
 
 #ifdef WIN32
         static bool WSAInitialised = false;
@@ -298,5 +354,8 @@ namespace nut {
             }
         }
 
+        std::shared_ptr<nut::AbstractSocket> defaultFactory(){
+            return std::shared_ptr<AbstractSocket>(new internal::DefaultSocket());
+        };
     }
 }
