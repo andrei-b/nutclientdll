@@ -1,5 +1,7 @@
 /* nutclient.h - definitions for nutclient C/C++ library
 
+   Modified for Windows compatibility by Andrei Borovsky <andrei.borovsky@gmail.com> (c) 2021
+
    Copyright (C) 2012  Emilien Kia <emilien.kia@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
@@ -35,41 +37,37 @@
 #ifndef NUT_UNUSED_VARIABLE
 #define NUT_UNUSED_VARIABLE(x) (void)(x)
 #endif
+#ifdef WIN32_EXPORT
+#define LIB_API __declspec(dllexport)
+#endif
+#ifndef WIN32_EXPORT
+#ifdef WIN32
+#define LIB_API __declspec(dllimport)
+#endif
+#ifndef WIN32
+#define LIB_API
+#endif
+#endif
 
 namespace nut
 {
 
-#ifdef WIN32_EXPORT
-    class __declspec(dllexport) AbstractSocket;
-    class __declspec(dllexport) Client;
-    class __declspec(dllexport) TcpClient;
-    class __declspec(dllexport) Device;
-    class __declspec(dllexport) Variable;
-    class __declspec(dllexport) Command;
-    class __declspec(dllexport) NutException;
-    class __declspec(dllexport) SystemException;
-    class __declspec(dllexport) IOException;
-    class __declspec(dllexport) UnknownHostException;
-    class __declspec(dllexport) NotConnectedException;
-    __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
-#endif
-#ifndef WIN32_EXPORT
-    class AbstractSocket;
-    class Client;
-    class TcpClient;
-    class Device;
-    class Variable;
-    class Command;
+    class LIB_API AbstractSocket;
+    class LIB_API Client;
+    class LIB_API TcpClient;
+    class LIB_API Device;
+    class LIB_API Variable;
+    class LIB_API Command;
+    class LIB_API NutException;
+    class LIB_API SystemException;
+    class LIB_API IOException;
+    class LIB_API UnknownHostException;
+    class LIB_API NotConnectedException;
+    class LIB_API TimeoutException;
     /* If you are going to use your own AbstractSocket implementation, you should register a factory for it.
      * The factory returns a shared pointer to the newly created AbstracSocket descendant object.
      */
-    void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
-#endif
-
-    /*
-     * Abstract socket interface which you can use to provide your own socket implementation instead of the default one.
-     */
-
+    LIB_API void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 
 /**
  * Basic nut exception.

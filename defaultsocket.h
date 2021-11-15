@@ -9,8 +9,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
-/* Windows/Linux Socket compatibility layer: */
-/* Thanks to Benjamin Roux (http://broux.developpez.com/articles/c/sockets/) */
 #ifdef WIN32
 #include <ws2tcpip.h>
 #include <io.h>
@@ -30,9 +28,6 @@
    typedef struct sockaddr SOCKADDR;
    typedef struct in_addr IN_ADDR;
 #endif /* WIN32 */
-/* End of Windows/Linux Socket compatibility layer: */
-
-#include "nutclient.h"
 
 
 /* Include nut common utility functions or define simple ones if not */
@@ -40,7 +35,6 @@ namespace nut {
     namespace internal {
 
         std::shared_ptr<nut::AbstractSocket> defaultFactory();
-
 
     }
 }
