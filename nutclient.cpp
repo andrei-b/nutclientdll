@@ -105,15 +105,10 @@ static std::function<std::shared_ptr<AbstractSocket>()> socketFactory = internal
 
 }/* namespace internal */
 
-#ifdef WIN32_EXPORT
-    __declspec(dllexport) void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory)
-#endif
-#ifndef WIN32_EXPORT
-    void __cdecl registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory)
-#endif
-    {
-        nut::internal::socketFactory = factory;
-    }
+LIB_API void registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory)
+{
+    nut::internal::socketFactory = factory;
+}
 
 /*
  *
