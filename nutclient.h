@@ -68,6 +68,7 @@ namespace nut
     /*
      * If you are going to use your own AbstractSocket implementation, you should register a factory for it.
      * The factory returns a shared pointer to the newly created AbstractSocket descendant object.
+     * You must register a factory if you build this lib with the BUILD_WITH_DEFAULT_SOCKET option set to off.
      */
 
     LIB_API void registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
