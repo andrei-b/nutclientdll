@@ -17,7 +17,9 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+#ifdef BUILD_WITH_DEFAULT_SOCKET
 #include "defaultsocket.h"
+#endif
 
 #ifdef HAVE_NUTCOMMON
 #include "common.h"
@@ -98,8 +100,12 @@ namespace internal
 
 
 
-
+#ifdef BUILD_WITH_DEFAULT_SOCKET
 static std::function<std::shared_ptr<AbstractSocket>()> socketFactory = internal::defaultFactory;
+#endif
+#ifndef BUILD_WITH_DEFAULT_SOCKET
+static std::function<std::shared_ptr<AbstractSocket>()> socketFactory = nullptr;
+#endif
 
 
 
