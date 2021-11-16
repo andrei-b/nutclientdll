@@ -42,7 +42,12 @@
 #endif
 #ifndef WIN32_EXPORT
 #ifdef WIN32
+#ifdef BUILD_STATIC
+#define LIB_API
+#endif
+#ifndef BUILD_STATIC
 #define LIB_API __declspec(dllimport)
+#endif
 #endif
 #ifndef WIN32
 #define LIB_API
