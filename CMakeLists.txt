@@ -3,8 +3,8 @@ project(nutclient)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(NUTCLIENT_DYNAMIC_LIB TRUE)
 set(BUILD_WITH_DEFAULT_SOCKET TRUE)
-set(NUTCLIENT_DYNAMIC_LIB FALSE)
 
 add_subdirectory(example)
 
