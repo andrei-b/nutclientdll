@@ -76,10 +76,12 @@ namespace nut {
 
         DefaultSocket::~DefaultSocket() {
             disconnect();
+#ifdef WIN32
             if (WSAInitialised) {
                 WSACleanup();
                 WSAInitialised = false;
             }
+#endif
         }
 
         void DefaultSocket::connect(const std::string &host, int port) {
