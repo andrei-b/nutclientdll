@@ -28,9 +28,9 @@ else(NUTCLIENT_DYNAMIC_LIB)
 endif(NUTCLIENT_DYNAMIC_LIB)
 
 if (NUTCLIENT_BUILD_WITH_DEFAULT_SOCKET)
-    set(SOURCES "nutclient.cpp" "defaultsocket.cpp" "defaultsocket.h")
+    set(SOURCES "nutclient.cpp" "nutclient.h" "defaultsocket.cpp" "defaultsocket.h")
 else(NUTCLIENT_BUILD_WITH_DEFAULT_SOCKET)
-    set(SOURCES "nutclient.cpp")
+    set(SOURCES "nutclient.cpp" "nutclient.h")
 endif(NUTCLIENT_BUILD_WITH_DEFAULT_SOCKET)
 
 add_library(nutclient ${LIB_TYPE} ${SOURCES})
