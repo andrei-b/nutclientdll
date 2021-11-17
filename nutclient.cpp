@@ -17,6 +17,8 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+#include "nutclient.h"
+
 #ifdef BUILD_WITH_DEFAULT_SOCKET
 #include "defaultsocket.h"
 #endif
@@ -26,6 +28,8 @@
 #else /* HAVE_NUTCOMMON */
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
+
 static inline void *xmalloc(size_t size){return malloc(size);}
 static inline void *xcalloc(size_t number, size_t size){return calloc(number, size);}
 static inline void *xrealloc(void *ptr, size_t size){return realloc(ptr, size);}
