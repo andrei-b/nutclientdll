@@ -1,5 +1,7 @@
 /* nutclient.h - definitions for nutclient C/C++ library
 
+   Modified for Windows compatibility by Andrei Borovsky <andrei.borovsky@gmail.com> (c) 2021
+
    Copyright (C) 2012  Emilien Kia <emilien.kia@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
@@ -28,44 +30,53 @@
 #include <map>
 #include <set>
 #include <exception>
+#include <functional>
+#include <memory>
 
 /* See include/common.h for details behind this */
 #ifndef NUT_UNUSED_VARIABLE
 #define NUT_UNUSED_VARIABLE(x) (void)(x)
 #endif
+#ifdef WIN32_EXPORT
+#define LIB_API __declspec(dllexport)
+#endif
+#ifndef WIN32_EXPORT
+#ifdef WIN32
+#ifdef BUILD_STATIC
+#define LIB_API
+#endif
+#ifndef BUILD_STATIC
+#define LIB_API __declspec(dllimport)
+#endif
+#endif
+#ifndef WIN32
+#define LIB_API
+#endif
+#endif
 
 namespace nut
 {
 
-namespace internal
-{
-class Socket;
-} /* namespace internal */
+    class LIB_API AbstractSocket;
+    class LIB_API Client;
+    class LIB_API TcpClient;
+    class LIB_API Device;
+    class LIB_API Variable;
+    class LIB_API Command;
+    class LIB_API NutException;
+    class LIB_API SystemException;
+    class LIB_API IOException;
+    class LIB_API UnknownHostException;
+    class LIB_API NotConnectedException;
+    class LIB_API TimeoutException;
 
-#ifdef WIN32_EXPORT
-class __declspec(dllexport) Client;
-class __declspec(dllexport) TcpClient;
-class __declspec(dllexport) Device;
-class __declspec(dllexport) Variable;
-class __declspec(dllexport) Command;
-class __declspec(dllexport) NutException;
-class __declspec(dllexport) SystemException;
-class __declspec(dllexport) IOException;
-class __declspec(dllexport) UnknownHostException;
-class __declspec(dllexport) NotConnectedException;
-__declspec(dllexport) void __cdecl freeWinsock();
+    /*
+     * If you are going to use your own AbstractSocket implementation, you should register a factory for it.
+     * The factory returns a shared pointer to the newly created AbstractSocket descendant object.
+     * You must register a factory if you build this lib with the BUILD_WITH_DEFAULT_SOCKET option set to off.
+     */
 
-#endif
-#ifndef WIN32_EXPORT
-    class Client;
-    class TcpClient;
-    class Device;
-    class Variable;
-    class Command;
-#ifdef WIN32
-    __declspec(dllimport) void __cdecl freeWinsock();
-#endif
-#endif
+    LIB_API void registerSocketFactory(const std::function<std::shared_ptr<AbstractSocket>()> & factory);
 
 /**
  * Basic nut exception.
@@ -145,6 +156,74 @@ public:
     TimeoutException& operator=(TimeoutException& rhs) = default;
 	virtual ~TimeoutException();
 };
+
+    /*
+     * AbstractSocket is the interface for TCP socket classes used by other classes in this library.
+     * By default, the DefaultSocket internal implementation is used. You may want to replace the default
+     * implementation with your own if, for example, you are using some framework that has its own socket classes,
+     * like QTcpSocket in Qt or ip::tcp::socket in Boost, and you want the nut client code to rely on those classes
+     * for the network I/O. In this case you should create your own wrapper class descending from AbstractSocket,
+     * and register a factory for it by calling the registerSocketFactory(...).
+     */
+
+    class AbstractSocket
+    {
+
+    public:
+        /*
+         * Creates the connection.
+         *     host - remote hostname
+         *     port - remote port
+         *     If the host is not found throws UnknownHostException
+         *     if the socket cannot be opened for any other reason, throws IOException("Cannot connect to host")
+         */
+        virtual void connect(const std::string& host, int port) = 0;
+        /*
+         * Closes the connection, never reports an error.
+         */
+        virtual void disconnect() = 0;
+        /*
+         * Returns true if the socket is connected, and false otherwise.
+         */
+        virtual bool isConnected()const = 0;
+        /*
+         * Don't touch this.
+         */
+        void setTimeout(long timeout) {};
+        /*
+         * Don't touch this.
+         */
+        bool hasTimeout()const{return false;}
+        /*
+         * Reads data from a socket in the blocking mode.
+         *     buf - buffer
+         *     sz - buffer length
+         *     Returns the number of bytes actually read. Returning 0 means the remote connection is closed.
+         *  Throws NotConnectedException if called on a not connected socket.
+         *  Throws IOException at any other error.
+         */
+        virtual size_t read(void* buf, size_t sz) = 0;
+        /*
+         * Writes data to a socket in the blocking mode.
+         *     buf - buffer
+         *     sz - buffer data length
+         *     Returns the number of bytes actually written. Returning 0 means the remote connection is closed.
+         *  Throws NotConnectedException if called on a not connected socket.
+         *  Throws IOException at any other error.
+         */
+        virtual size_t write(const void* buf, size_t sz) = 0;
+        /*
+         * Reads a string from the socket. The NUT protocol separates the strings with \n symbol,
+         * but the string returned should not contain it.
+         */
+        virtual std::string read() = 0;
+        /*
+         * Writes a string to the socket. The NUT protocol separates the strings with \n symbol,
+         * but the string s should not contain it.
+         */
+        virtual void write(const std::string & s) = 0;
+        virtual ~AbstractSocket() = default;
+    };
 
 /**
  * Cookie given when performing async action, used to redeem result at a later date.
@@ -486,7 +565,7 @@ private:
 	std::string _host;
 	int _port;
 	long _timeout;
-	internal::Socket* _socket;
+	std::shared_ptr<AbstractSocket> _socket;
 };
 
 /**
@@ -1075,3 +1154,4 @@ long nutclient_tcp_get_timeout(NUTCLIENT_TCP_t client);
 
 
 #endif	/* NUTCLIENT_HPP_SEEN */
+

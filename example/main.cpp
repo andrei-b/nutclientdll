@@ -40,8 +40,5 @@ int main(int argc, char * argv[])
     } catch (const NutException & e) {
         cout << e.what() << endl;
     }
-#ifdef WIN32
-    freeWinsock();
-#endif
     exit(0);
 }
